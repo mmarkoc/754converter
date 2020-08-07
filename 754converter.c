@@ -36,12 +36,12 @@ int frac_exp_inputcheck(int fraction,int exponent){
 	return fraction + exponent;
 }
 
-// Check if our number exceeds the allowed bit size ( signed bit + fraction + exponent )  
+// Check if the hex number provided exceeds the allowed bit size ( signed bit + fraction + exponent )  
 void check_hex_size(int number, int bit_size){
 
 	unsigned long compare = (unsigned long)pow(2,bit_size+1);
 
-	// Exit if the provided hex is bigger than compare
+	// Notify and exit if provided number is larger than given bit size
 	if( number > compare ){
 		printf("Number %x exceeds maximum number of bits. Only %d allowed here.\n", number,bit_size + SIGNED_BIT);
 		exit(0);
@@ -67,7 +67,7 @@ unsigned long signParser(unsigned long number, int exponent_bits,int fraction_bi
 }	
 
 // Our main calculator function
-void ieee754FloatingCalculator(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
+void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
 	// If exponent is all 1
 	if(exponent == ((unsigned long)pow(2,exponent_bits)-1)){
 		// If fraction is all 0
@@ -154,11 +154,16 @@ int main(int argc, char ** argv){
 	// Make sure that the given hex is within the size limit
 	check_hex_size(number,frac_exp_inputcheck(fraction_bits,exponent_bits));
 	
+	// Get the fraction part of the given number
 	fraction = fractionParser(number,fraction_bits);
+	// Get the exponent part of the given number
 	exponent = exponentParser(number,exponent_bits,fraction_bits);
+	// Get the signed bit of the number
 	sign = signParser(number,exponent_bits,fraction_bits);
+	// Calculate bias
 	bias = (int)pow(2,(exponent_bits-1))-1;
 
-	ieee754FloatingCalculator(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
+	// Run the main function
+	ieee754Converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
 	return 0;
 }
