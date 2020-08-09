@@ -24,12 +24,12 @@
 int frac_exp_inputcheck(int fraction,int exponent){
 
 	if( fraction < FRACTION_MIN || fraction > FRACTION_MAX ){
-		printf("Invalid number of fraction bits (%d). Should be between 2 and 10\n", fraction);
+		printf("Invalid number of fraction bits (%i). Should be between %i and %i.\n", fraction, FRACTION_MIN, FRACTION_MAX);
 		exit(0);
 	}	
 
 	if( exponent < EXPONENT_MIN || exponent > EXPONENT_MAX ){
-		printf("Invalid number of exponent bits (%d). Should be between 3 and 5\n", exponent);
+		printf("Invalid number of exponent bits (%i). Should be between %i and %i.\n", exponent, EXPONENT_MIN, EXPONENT_MAX);
 		exit(0);
 	}	
 
