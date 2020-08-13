@@ -5,22 +5,30 @@
 /*
  * Simple IEEE 754 converter that converts given hexadecimal number
  * to the decimal number based on the given sizes of fraction and exponent bits.
- * I have used this to test my manual IEEE 754 calculations.
+ * I have used this to test my manual IEEE 754 calculations. 
+ * 
+ * Usage example :
+ *   ./754converter 4 3 0x1E
+ *   0.468750 
+ *
+ * In this example given number is 0x1E ( 0001 1110 binary ) with 4 fraction bits ( 1110 ),
+ * 3 exponent bits ( 001 ) and 1 sign bit ( 0 ).  
  */
  
-// Various argument limits, feel free to modify based on your needs.
-// Default set to limits of 32 bit ( 1 signed bit, 8 exponent bits and 23 fraction bits ).
+/* Various argument limits, feel free to modify based on your needs.
+ * Default set to limits of 32 bit ( 1 signed bit, 8 exponent bits and 23 fraction bits ).*/
 #define MAX_ARGUMENT_SIZE 4 
 #define FRACTION_MIN 2 
 #define FRACTION_MAX 23
 #define EXPONENT_MIN 3 
 #define EXPONENT_MAX 8 
-#define SIGNED_BIT 1 
+#define SIGN_BIT 1 
 #define DENORMALIZED 1 
 #define NORMALIZED 1 
 #define ARG_ERROR "Usage: 754converter <# of frac_bits> <# of exp_bits> <number in hex>"
 
-// Check for correct input, it returns how many bits is allowed in number
+/* Check for correct input by comparing the given fraction and exponent sizes with the ones
+ * defined in as MIN and MAX. Return how many bits are allowed in the number user provided.  */
 int frac_exp_inputcheck(int fraction,int exponent){
 
 	if( fraction < FRACTION_MIN || fraction > FRACTION_MAX ){
@@ -36,70 +44,69 @@ int frac_exp_inputcheck(int fraction,int exponent){
 	return fraction + exponent;
 }
 
-// Check if the hex number provided exceeds the allowed bit size ( signed bit + fraction + exponent )  
-void check_hex_size(int number, int bit_size){
-
+/* Check if the number given by the user is larger than the combined given bit size ( sign bit + fraction + exponent). */ 
+void check_hex_size(int number, int bit_size){ 
 	unsigned long compare = (unsigned long)pow(2,bit_size+1);
 
-	// Notify and exit if provided number is larger than given bit size
+        /* If number is bigger, error out and exit. */
 	if( number > compare ){
-		printf("Number %x exceeds maximum number of bits. Only %d allowed here.\n", number,bit_size + SIGNED_BIT);
+		printf("Number %x exceeds maximum number of bits. Only %d allowed here.\n", number,bit_size + SIGN_BIT);
 		exit(0);
 	}
 }
 
-// Fraction parser
+/* Bit mask is used to get fraction bits of the number. */ 
 unsigned long fractionParser(unsigned long number, int fraction_bits){
 	unsigned long fraction = number&((1<<fraction_bits)-1);
 	return fraction;
 }	
 
-// Exponent parser
+/* Bit mask is used to get exponent bits of the number. */ 
 unsigned long exponentParser(unsigned long number, int exponent_bits,int fraction_bits){
 	unsigned long exponent = number & (((1<<fraction_bits+exponent_bits)-1)^((1<<fraction_bits)-1));
 	return exponent>>fraction_bits;
 }	
 
-// Sign bit parser
+/* Bit mask is used to get sign bit of the number. */ 
 unsigned long signParser(unsigned long number, int exponent_bits,int fraction_bits){
 	unsigned long sign = number & (unsigned long)pow(2,exponent_bits+fraction_bits);
 	return sign>>(fraction_bits+exponent_bits);
 }	
 
-// Our main calculator function
+/* Main converter function goes through all of the steps of IEEE 754 Standard. */
 void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
-	// If exponent is all 1
-	if(exponent == ((unsigned long)pow(2,exponent_bits)-1)){
-		// If fraction is all 0
+	/*  If exponent bits are all 1 it is the case of either infinity or not a number. */
+	if( exponent == ((unsigned long)pow(2,exponent_bits)-1) ){
+		/* If fraction bits are all 0 it is the case of infinity. */
 		if( fraction == 0 ){
-			// Infinity
-			if(sign == 1)
-				printf("-inf\n");
+			/* If sign bit is 1 it is negative infinity otherwise positive infinity. */
+			if( sign == 1 )
+				printf("-Infinity\n");
 			else
-				printf("+inf\n");
+				printf("+Infinity\n");
 		}
-		// NaN
+		/* Otherwise it is not a number. */
 		else
-			printf("NaN\n");
-		
+			printf("Not A Number.\n");
 		exit(0);
 	}
 
-	// E and M
+	/* Exponent and Mantissa. */
 	int e;
 	float m;
-	// Denormalized
+	/* If exponent bits are all 0 number is denormalized otherwise it is normalized. */
 	if(exponent == 0){
 		e = 1 - bias;
 		m = calculated_fraction;
 	}	
-	// Normalized
 	else{
 		e = exponent - bias; 
 		m = 1 + calculated_fraction;
 	}
-	// Calculate the float number and print it
+	/* Calculate the float number and print it. Formula used is:
+         * value = (-1)^sign * mantissa * 2^exponent */ 
 	float number = pow(-1,sign) * m * pow(2,e);
+	printf("(-1)^%i * %f * 2^%i =  ",sign, m, e);
 	printf("%f\n",number);
 }
 
@@ -118,7 +125,6 @@ float calculateFraction(unsigned long fraction,int fraction_bits){
 	}
 
 	return calculated_fraction;
-
 }
 
 int main(int argc, char ** argv){
