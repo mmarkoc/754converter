@@ -7,3 +7,10 @@ allows you to set the fraction and exponent size.
 
 ## Usage
 `754converter <# of frac_bits> <# of exp_bits> <number in hex>`
+
+`    ./754converter 4 3 0x1E
+     0x1e in binary    : 00011110
+     Fraction bits are : 1110
+     Exponent bits are : 001
+     Sign bit is       : 0
+     (-1)^0 * 1.875000 * 2^-2 =  0.468750`
