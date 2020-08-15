@@ -9,7 +9,11 @@
  * 
  * Usage example :
  *   ./754converter 4 3 0x1E
- *   0.468750 
+ *    0x1e in binary	: 00011110
+ *    Fraction bits are	: 1110
+ *    Exponent bits are	: 001
+ *    Sign bit is	: 0
+ *    (-1)^0 * 1.875000 * 2^-2 =  0.468750
  *
  * In this example given number is 0x1E ( 0001 1110 binary ) with 4 fraction bits ( 1110 ),
  * 3 exponent bits ( 001 ) and 1 sign bit ( 0 ).  
