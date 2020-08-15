@@ -56,25 +56,25 @@ void check_hex_size(int number, int bit_size){
 }
 
 /* Bit mask is used to get fraction bits of the number. */ 
-unsigned long fractionParser(unsigned long number, int fraction_bits){
+unsigned long fraction_mask(unsigned long number, int fraction_bits){
 	unsigned long fraction = number&((1<<fraction_bits)-1);
 	return fraction;
 }	
 
 /* Bit mask is used to get exponent bits of the number. */ 
-unsigned long exponentParser(unsigned long number, int exponent_bits,int fraction_bits){
+unsigned long exponent_mask(unsigned long number, int exponent_bits,int fraction_bits){
 	unsigned long exponent = number & (((1<<fraction_bits+exponent_bits)-1)^((1<<fraction_bits)-1));
 	return exponent>>fraction_bits;
 }	
 
 /* Bit mask is used to get sign bit of the number. */ 
-unsigned long signParser(unsigned long number, int exponent_bits,int fraction_bits){
+unsigned long sign_mask(unsigned long number, int exponent_bits,int fraction_bits){
 	unsigned long sign = number & (unsigned long)pow(2,exponent_bits+fraction_bits);
 	return sign>>(fraction_bits+exponent_bits);
 }	
 
 /* Main converter function goes through all of the steps of IEEE 754 Standard. */
-void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
+void ieee_754_converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
 	/*  If exponent bits are all 1 it is the case of either infinity or not a number. */
 	if( exponent == ((unsigned long)pow(2,exponent_bits)-1) ){
 		/* If fraction bits are all 0 it is the case of infinity. */
@@ -110,7 +110,7 @@ void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int
 	printf("%f\n",number);
 }
 
-// Return fraction in decimal value
+/* For IEEE754 calculation fraction bits are needed as float type */
 float calculateFraction(unsigned long fraction,int fraction_bits){
 
 	int i = fraction_bits-1;
@@ -129,7 +129,7 @@ float calculateFraction(unsigned long fraction,int fraction_bits){
 
 int main(int argc, char ** argv){
 
-	// Check for the correct number of arguments
+	/* Check for the correct number of arguments */
 	if( argc != MAX_ARGUMENT_SIZE){
 		printf("%s\n",ARG_ERROR);
 		exit(0);
@@ -157,19 +157,19 @@ int main(int argc, char ** argv){
 		exit(0);
 	}
 	
-	// Make sure that the given hex is within the size limit
+	/* Make sure that the given hex is within the size limit */
 	check_hex_size(number,frac_exp_inputcheck(fraction_bits,exponent_bits));
 	
-	// Get the fraction part of the given number
-	fraction = fractionParser(number,fraction_bits);
-	// Get the exponent part of the given number
-	exponent = exponentParser(number,exponent_bits,fraction_bits);
-	// Get the signed bit of the number
-	sign = signParser(number,exponent_bits,fraction_bits);
-	// Calculate bias
+	/* Get the fraction part of the given number */
+	fraction = fraction_mask(number,fraction_bits);
+	/* Get the exponent part of the given number */
+	exponent = exponent_mask(number,exponent_bits,fraction_bits);
+	/* Get the signed bit of the number */
+	sign = sign_mask(number,exponent_bits,fraction_bits);
+	/* Calculate bias */
 	bias = (int)pow(2,(exponent_bits-1))-1;
 
-	// Run the main function
-	ieee754Converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
+	/* Run the main function */
+	ieee_754_converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
 	return 0;
 }
