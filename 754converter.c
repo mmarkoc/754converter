@@ -28,7 +28,7 @@
 #define ARG_ERROR "Usage: 754converter <# of frac_bits> <# of exp_bits> <number in hex>"
 
 /* Check for correct input by comparing the given fraction and exponent sizes with the ones
- * defined in as MIN and MAX. Return how many bits are allowed in the number user provided.  */
+ * defined in as MIN and MAX. Return how many bits are allowed in the number user provided. */
 int frac_exp_inputcheck(int fraction,int exponent){
 
 	if( fraction < FRACTION_MIN || fraction > FRACTION_MAX ){
@@ -74,7 +74,7 @@ unsigned long sign_mask(unsigned long number, int exponent_bits,int fraction_bit
 }	
 
 /* Main converter function goes through all of the steps of IEEE 754 Standard. */
-void ieee_754_converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
+void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
 	/*  If exponent bits are all 1 it is the case of either infinity or not a number. */
 	if( exponent == ((unsigned long)pow(2,exponent_bits)-1) ){
 		/* If fraction bits are all 0 it is the case of infinity. */
@@ -127,6 +127,19 @@ float calculateFraction(unsigned long fraction,int fraction_bits){
 	return calculated_fraction;
 }
 
+/* Print given number in binary form */
+void print_binary(int number, int bit_size){
+
+	for( int i= bit_size-1; i>=0; --i){
+		if(number & ( 1<<i )){
+			printf("1");
+		}
+		else{
+			printf("0");
+		}
+        }
+}
+
 int main(int argc, char ** argv){
 
 	/* Check for the correct number of arguments */
@@ -159,17 +172,31 @@ int main(int argc, char ** argv){
 	
 	/* Make sure that the given hex is within the size limit */
 	check_hex_size(number,frac_exp_inputcheck(fraction_bits,exponent_bits));
-	
-	/* Get the fraction part of the given number */
+		
+	/* Print number given by the user in binary form */
+	printf("0x%x in binary\t: " , number);
+	print_binary(number, (fraction_bits+exponent_bits+SIGN_BIT));
+	printf("\n");
+
+	/* Get the fraction part of the given number and print it in binary*/
 	fraction = fraction_mask(number,fraction_bits);
-	/* Get the exponent part of the given number */
+	printf("Fraction bits are\t: ");
+	print_binary(fraction, fraction_bits);
+	printf("\n");
+	/* Get the exponent part of the given number and print it in binary*/
 	exponent = exponent_mask(number,exponent_bits,fraction_bits);
-	/* Get the signed bit of the number */
+	printf("Exponent bits are\t: ");
+	print_binary(exponent, exponent_bits);
+	printf("\n");
+	/* Get the signed bit of the number and print it in binary */
 	sign = sign_mask(number,exponent_bits,fraction_bits);
+	printf("Sign bit is\t\t: ");
+	print_binary(sign, SIGN_BIT);
+	printf("\n");
 	/* Calculate bias */
 	bias = (int)pow(2,(exponent_bits-1))-1;
 
 	/* Run the main function */
-	ieee_754_converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
+	ieee754Converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
 	return 0;
 }
