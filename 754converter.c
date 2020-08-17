@@ -78,7 +78,7 @@ unsigned long sign_mask(unsigned long number, int exponent_bits,int fraction_bit
 }	
 
 /* Main converter function goes through all of the steps of IEEE 754 Standard. */
-void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
+void ieee_754_converter(unsigned long fraction,unsigned long exponent,int bias,int sign,float calculated_fraction,int exponent_bits){
 	/*  If exponent bits are all 1 it is the case of either infinity or not a number. */
 	if( exponent == ((unsigned long)pow(2,exponent_bits)-1) ){
 		/* If fraction bits are all 0 it is the case of infinity. */
@@ -115,7 +115,7 @@ void ieee754Converter(unsigned long fraction,unsigned long exponent,int bias,int
 }
 
 /* For IEEE754 calculation fraction bits are needed as float type */
-float calculateFraction(unsigned long fraction,int fraction_bits){
+float calculate_fraction(unsigned long fraction,int fraction_bits){
 
 	int i = fraction_bits-1;
 	int j = 1;
@@ -201,6 +201,6 @@ int main(int argc, char ** argv){
 	bias = (int)pow(2,(exponent_bits-1))-1;
 
 	/* Run the main function */
-	ieee754Converter(fraction,exponent,bias,sign,calculateFraction(fraction,fraction_bits),exponent_bits);
+	ieee_754_converter(fraction,exponent,bias,sign,calculate_fraction(fraction,fraction_bits),exponent_bits);
 	return 0;
 }
